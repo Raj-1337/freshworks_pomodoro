@@ -1,5 +1,13 @@
+
+//This file contains all the codes 
+
 exports = {
+
+  
   events: [{ event: "onScheduledEvent", callback: "scheduledEventHandler" }],
+
+
+
   serverMethod: function(args) {
     console.log("creating scheduled event...");
     console.log("args are...\n" + JSON.stringify(args));
@@ -38,9 +46,7 @@ exports = {
             })
             .then(
               function(data) {
-                console.log(
-                  "incrementDay successfully created!"
-                );
+                console.log("incrementDay successfully created!");
                 console.log(JSON.stringify(data));
               },
               function(err) {
@@ -161,7 +167,9 @@ exports = {
       })
       .then(
         function(data) {
-          console.log("schedule deleted successfully!\nargs: " + JSON.stringify(data));
+          console.log(
+            "schedule deleted successfully!\nargs: " + JSON.stringify(data)
+          );
           $db.get(uid).then(
             function(data) {
               td = data.totalDays;
@@ -238,22 +246,25 @@ exports = {
     console.log("testData invoked!");
     let uid = args.id.toString();
     let td = 29;
-    let hs =[];
+    let hs = [];
     for (let i = 0; i < 29; i++) {
-      hs.push(
-        {
-          noOfSessions: Math.ceil(Math.random() * 10),
-          noOfInterruptions: Math.ceil(Math.random() * 10)
-        }
-      );
+      hs.push({
+        noOfSessions: Math.ceil(Math.random() * 10),
+        noOfInterruptions: Math.ceil(Math.random() * 10)
+      });
     }
-    $db.set(uid, {totalDays: td, history: hs})
-    .done(function(data) {
-      console.log("Test data successfully inserted!\nargs: " + JSON.stringify(data));
-    })
-    .fail(function(err) {
-      console.log("Test data couldn't be set up!\nargs: " + JSON.stringify(err));
-    });
+    $db
+      .set(uid, { totalDays: td, history: hs })
+      .done(function(data) {
+        console.log(
+          "Test data successfully inserted!\nargs: " + JSON.stringify(data)
+        );
+      })
+      .fail(function(err) {
+        console.log(
+          "Test data couldn't be set up!\nargs: " + JSON.stringify(err)
+        );
+      });
     renderData(null, { reply: "Test data updated sucessfully" });
   }
 };
