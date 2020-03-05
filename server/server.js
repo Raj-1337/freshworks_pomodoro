@@ -146,6 +146,7 @@ exports = {
         // data = JSON.parse(data);
         td = data.totalDays;
         hs = data.history;
+        console.log("after day, hs: " + hs + " td: " + td);
         if (data.totalDays < 29) {
           td += 1;
           hs.push({ noOfSessions: 0, noOfInterruptions: 0 });
@@ -153,14 +154,14 @@ exports = {
           hs.shift();
           hs.push({ noOfSessions: 0, noOfInterruptions: 0 });
         }
-        $db.update(args.data.id, "set", JSON.stringify({ history: hs }));
+        $db.update(args.data.id, "set", { history: hs });
       });
     }
   },
 
   deleteSchedule: function(args) {
     console.log("Deleteing schedule...\nargs: " + args);
-    let uid = args.id.toString();
+    let uid = args.id;
     $schedule
       .delete({
         name: "test_schedule"
@@ -209,7 +210,7 @@ exports = {
 
   clearActivity: function(args) {
     console.log("clearActivity invoked!\nargs: " + JSON.stringify(args));
-    let uid = args.id.toString();
+    let uid = args.id;
     $schedule
       .delete({
         name: "Increment_Day"
@@ -227,6 +228,15 @@ exports = {
           );
         }
       );
+    $schedule.delete({
+      name: "test_schedule"
+    })
+    .then(function(data) {
+      console.log("test_schedule deleted successfully!\nargs: " + JSON.stringify(data));
+    },
+    function(err) {
+      console.log("test_shedule couldn't be deleted successfully!\nargs: " + JSON.stringify(err));
+    });
     $db.delete(uid).then(
       function(data) {
         console.log(
