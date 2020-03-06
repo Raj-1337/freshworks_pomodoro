@@ -1,14 +1,10 @@
 app.initialized().then(function(_client) {
   let client = _client;
-  let td = null;
-  let hs = null;
-  client.instance
-    .context()
+  /** we use the context API to get the data skeleton from app.js  */
+  client.instance.context()
     .then(function(context) {
-      console.log("context");
-      td = context.data.totalDays;
-      
-      hs = context.data.history;
+
+      let hs = context.data.history;
       
       google.charts.load("current", { packages: ["corechart"] });
       google.charts.setOnLoadCallback(drawChart);

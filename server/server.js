@@ -74,10 +74,6 @@ exports = {
         function(data) {
           console.log("schedule created sucessfully");
           console.log("promise of server method:\n" + JSON.stringify(data));
-
-          // let td = 0;
-          // let hs = [ {noOfSessions: 0, noOfInterruptions: 0} ];
-          // this.createDataSkeleton(uid, { totalDays: td, history: hs }, "Initial");
         },
 
         function(err) {
@@ -91,8 +87,13 @@ exports = {
     renderData(null, { reply: "created events sucessfully" });
   },
 
+  /**
+   * Handler funtion for both the scheduled events
+   * @param {JSON} args - data passed by scheduled events which inclues ID of the user and the type of schedule calling the handler
+   */
   scheduledEventHandler: function(args) {
     console.log("args are:\n" + JSON.stringify(args));
+    obj = this;
     if (args.data.type == "regular") {
       $db.get(args.data.id).then(
         function(data) {
@@ -100,11 +101,11 @@ exports = {
             "printing data from scheduledEventhandler...\ndata: " +
               JSON.stringify(data)
           );
-          td = data.totalDays;
-          hs = data.history;
+          let td = data.totalDays;
+          let hs = data.history;
           hs[td].noOfSessions += 1;
           
-          this.updateDataSkeleton(args.data.id, {history: hs});
+          obj.updateDataSkeleton(args.data.id, {history: hs});
         },
         function(err) {
           console.log(
@@ -131,8 +132,8 @@ exports = {
   },
 
   /**
-   * 
-   * @param {JSON} args - 
+   * This function deletes the schedule and records the event as an interruption as this will be fired only when the session is interrupted
+   * @param {JSON} args - conatins the user id passed by the front - end
    */
   deleteSchedule: function(args) {
     console.log("Deleteing schedule...\nargs: " + JSON.stringify(args));
@@ -155,10 +156,6 @@ exports = {
           );
         }
       );
-      console.log("outside scope start");
-      console.log(hs);
-      console.log("outside scope end");
-      // this.updateDataSkeleton(uid, {history: hs}, "record interruption");
     renderData(null, { reply: "deleted events sucessfully" });
   },
 

@@ -35,18 +35,16 @@ $(document).ready(function() {
           session();
           stopText();
           stage = true;
-          startTimer();
-          countdown();
         } else {
           stopPomodoro();
-          startText();
-          stopTimer();
+          // startText();
+          // stopTimer();
           stage = false;
         }
       });
 
-      /** a click event handler to get user's past sessions data pass it to a modal to show output in chart form
-       * refer mod.js for further flow
+      /** a click event handler to get user's past sessions data, process it and pass it to a modal to show output in chart form
+       * refer mod.js for flow continuation
        */
       $("#sa").click(function() {
         let hs = [];
@@ -149,8 +147,10 @@ function session() {
  */
 function takeBreak() {
   notifyUser("success", "take a 5 mins break!");
-  t3 = setTimeout(nextSessionCheck, 10000);
+  // t3 = setTimeout(nextSessionCheck, 10000);
   t1 = setTimeout(session, 20000);
+  startTimer();
+  countdown();
 }
 
 /**
@@ -166,7 +166,6 @@ function nextSessionCheck() {
         "your break's about to be over, do you want to start a new pomodoro session ? "
     })
     .then(function(result) {
-      // debugger;
       console.log(JSON.stringify(result));
       if (result.message == "OK") {
         console.log("user is continuing with next session!");
@@ -177,12 +176,8 @@ function nextSessionCheck() {
     })
     .catch(function(err) {
       console.log("error with showConfirm: " + JSON.stringify(err));
-      console.log("inside timeout start");
       stopPomodoro();
-      startText();
-      stopTimer();
       stage = false;
-      console.log("inside timeout end");
     });
 }
 
@@ -196,6 +191,7 @@ function stopPomodoro() {
   clearTimeout(t3);
   clearInterval(t2);
   startText();
+  stopTimer();
 }
 
 /**
