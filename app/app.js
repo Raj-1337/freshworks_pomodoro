@@ -32,6 +32,8 @@ $(document).ready(function() {
         if (!stage) {
           makeSMICall("serverMethod");
           t2 = setInterval(takeBreak, 40000, user_id);
+          startTimer();
+          countdown();
           session();
           stopText();
           stage = true;
@@ -211,6 +213,7 @@ function makeSMICall(methodName) {
   );
 }
 
+/** a function to save data of running counter using localstorage */
 function saveTimer() {
   console.log("saveTimer invoked! stage: " + stage + " " + endTime);
   if (stage) {
@@ -222,12 +225,14 @@ function saveTimer() {
   }
 }
 
+/** a function to set the session's end time and start countdown */
 function startTimer() {
   endTime = new Date();
   endTime.setMinutes(endTime.getMinutes() + 1);
-  t4 = setInterval(countdown, 998);
+  t4 = setInterval(countdown, 999);
 }
 
+/** function to update the counter */
 function countdown() {
   let current = endTime - new Date();
   let minutes = Math.floor((current % (1000 * 60 * 60)) / (1000 * 60));
@@ -235,6 +240,7 @@ function countdown() {
   $("#timer").text(`${minutes} min  :  ${seconds} sec`);
 }
 
+/** function to check if there is a running session, if so change the global variables which affetcs the UI and starts the timer */
 function checkTimer() {
   console.log("inside");
   if (localStorage.getItem("timerStorage") !== null) {
@@ -250,6 +256,7 @@ function checkTimer() {
   }
 }
 
+/** function to remove countdown and endTime */
 function stopTimer() {
   endTime = null;
   $("#timer").empty();
