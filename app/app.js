@@ -1,13 +1,18 @@
 let client = null;
 let user_id = null;
 let stage = false;
-let t1 = null, t2 = null, t3 = null;
+let t1 = null,
+  t2 = null,
+  t3 = null,
+  t4 = null;
+let endTime = null;
 $(document).ready(function() {
   app.initialized().then(function(_client) {
     client = _client;
-
     client.events.on("app.activated", function() {
-
+      console.log("checkTimer start");
+      checkTimer();
+      console.log("checkTimer end");
       /**
        * get the id of the user loged in using the data API
        */
@@ -30,21 +35,25 @@ $(document).ready(function() {
           session();
           stopText();
           stage = true;
+          startTimer();
+          countdown();
         } else {
           stopPomodoro();
           startText();
+          stopTimer();
           stage = false;
         }
       });
 
-      /** a click event handler to get user's past sessions data pass it to a modal to show output in chart form 
+      /** a click event handler to get user's past sessions data pass it to a modal to show output in chart form
        * refer mod.js for further flow
-      */
+       */
       $("#sa").click(function() {
         let hs = [];
         let td = null;
         client.db.get(user_id).then(
           function(data) {
+            console.log(data);
             td = data.totalDays;
             data.history.forEach((element, index) => {
               hs.push([
@@ -77,10 +86,14 @@ $(document).ready(function() {
       $("#td").click(function() {
         makeSMICall("testData");
       });
+      // $('body').bind('beforeunload', saveTimer);
+      // $(window).on("unload", saveTimer);
+
+      // $(window).on("beforeunload", {x: stage, y: endTime}, saveTimer);
+      $(window).on("beforeunload", saveTimer);
     });
   });
 });
-
 
 /**
  * a helper function to triggers notifications
@@ -107,7 +120,6 @@ function notifyUser(notificationType, notificationMessage) {
     });
 }
 
-
 /**
  * simple function to change UI
  */
@@ -115,7 +127,6 @@ function startText() {
   $("#apptext").text("Click me to start focus mode!!!");
   $("#ip").html("start");
 }
-
 
 /**
  * simple function to change UI
@@ -142,7 +153,6 @@ function takeBreak() {
   t1 = setTimeout(session, 20000);
 }
 
-
 /**
  * This function is executed before the break period's end time to ask if the user
  * wants to continue having pomodoro sessions or not
@@ -158,18 +168,23 @@ function nextSessionCheck() {
     .then(function(result) {
       // debugger;
       console.log(JSON.stringify(result));
-      if (result["message"] == "Cancel") {
+      if (result.message == "OK") {
+        console.log("user is continuing with next session!");
+      } else {
         console.log("user is stopping sessions!");
         stopPomodoro();
-      } else {
-        console.log("user is continuing with next session!");
       }
     })
     .catch(function(err) {
       console.log("error with showConfirm: " + JSON.stringify(err));
+      console.log("inside timeout start");
+      stopPomodoro();
+      startText();
+      stopTimer();
+      stage = false;
+      console.log("inside timeout end");
     });
 }
-
 
 /**
  * This function invokes deleteSchedule server.js methods via a helper function
@@ -182,7 +197,6 @@ function stopPomodoro() {
   clearInterval(t2);
   startText();
 }
-
 
 /**
  * This is a helper function which calls server.js methods using client.request.invoke API (SMI)
@@ -199,4 +213,50 @@ function makeSMICall(methodName) {
       console.log(JSON.stringify(err));
     }
   );
+}
+
+function saveTimer() {
+  console.log("saveTimer invoked! stage: " + stage + " " + endTime);
+  if (stage) {
+    console.log("saving item" + stage + " " + endTime);
+    localStorage.setItem(
+      "timerStorage",
+      JSON.stringify({ state: stage, end: endTime })
+    );
+  }
+}
+
+function startTimer() {
+  endTime = new Date();
+  endTime.setMinutes(endTime.getMinutes() + 1);
+  t4 = setInterval(countdown, 998);
+}
+
+function countdown() {
+  let current = endTime - new Date();
+  let minutes = Math.floor((current % (1000 * 60 * 60)) / (1000 * 60));
+  let seconds = Math.floor((current % (1000 * 60)) / 1000);
+  $("#timer").text(`${minutes} min  :  ${seconds} sec`);
+}
+
+function checkTimer() {
+  console.log("inside");
+  if (localStorage.getItem("timerStorage") !== null) {
+    let temp = localStorage.getItem("timerStorage");
+    temp = JSON.parse(temp);
+    endTime = new Date(temp.end);
+    stage = temp.state;
+    stopText();
+    countdown();
+    t4 = setInterval(countdown, 998);
+  } else {
+    console.log("no timerStorage");
+  }
+}
+
+function stopTimer() {
+  endTime = null;
+  $("#timer").empty();
+  clearInterval(t4);
+  localStorage.removeItem("timerStorage");
 }
