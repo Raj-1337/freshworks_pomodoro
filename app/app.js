@@ -4,7 +4,8 @@ let stage = false;
 let t1 = null,
   t2 = null,
   t3 = null,
-  t4 = null;
+  t4 = null,
+  t5 = null;
 let endTime = null;
 $(document).ready(function() {
   app.initialized().then(function(_client) {
@@ -32,6 +33,11 @@ $(document).ready(function() {
         if (!stage) {
           makeSMICall("serverMethod");
           t2 = setInterval(takeBreak, 40000, user_id);
+          t5 = setInterval(function () {
+            stopTimer();
+            startTimer();
+            countdown();
+          }, 60000);
           startTimer();
           countdown();
           session();
@@ -39,8 +45,8 @@ $(document).ready(function() {
           stage = true;
         } else {
           stopPomodoro();
-          // startText();
-          // stopTimer();
+          stopTimer();
+          clearInterval(t5);
           stage = false;
         }
       });
@@ -86,10 +92,7 @@ $(document).ready(function() {
       $("#td").click(function() {
         makeSMICall("testData");
       });
-      // $('body').bind('beforeunload', saveTimer);
-      // $(window).on("unload", saveTimer);
-
-      // $(window).on("beforeunload", {x: stage, y: endTime}, saveTimer);
+      /** registering an event to save timer if the pages was unloaded during session */
       $(window).on("beforeunload", saveTimer);
     });
   });
@@ -151,8 +154,6 @@ function takeBreak() {
   notifyUser("success", "take a 5 mins break!");
   // t3 = setTimeout(nextSessionCheck, 10000);
   t1 = setTimeout(session, 20000);
-  startTimer();
-  countdown();
 }
 
 /**
@@ -193,7 +194,6 @@ function stopPomodoro() {
   clearTimeout(t3);
   clearInterval(t2);
   startText();
-  stopTimer();
 }
 
 /**

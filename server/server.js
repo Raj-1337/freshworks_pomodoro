@@ -38,9 +38,7 @@ exports = {
           //   schedule_at: x.toISOString()
           // })
           let x = new Date();
-          console.log("time now: " + x.toString());
           x.setMinutes(x.getMinutes() + 6);
-          console.log("new end of day is!" + x.toString());
           $schedule
             .create({
               name: "Increment_Day",
@@ -105,7 +103,7 @@ exports = {
           let hs = data.history;
           hs[td].noOfSessions += 1;
           
-          obj.updateDataSkeleton(args.data.id, {history: hs});
+          obj.updateDataSkeleton(args.data.id, {history: hs}, "reguler");
         },
         function(err) {
           console.log(
@@ -126,7 +124,7 @@ exports = {
           hs.shift();
           hs.push({ noOfSessions: 0, noOfInterruptions: 0 });
         }
-        this.updateDataSkeleton(args.data.id, {history: hs});
+        obj.updateDataSkeleton(args.data.id, {history: hs}, "end Day");
       });
     }
   },
@@ -252,7 +250,7 @@ exports = {
       .set(uid, dataObject, {setIf: "not_exist"})
       .done(function(data) {
         console.log(
-          "Success!" + message + "\nargs: " + JSON.stringify(data)
+          "Success! " + message + "\nargs: " + JSON.stringify(data)
         );
       })
       .fail(function(err) {
